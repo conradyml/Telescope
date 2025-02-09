@@ -1,0 +1,479 @@
+<!doctype html>
+<html lang=en>
+<head>
+<meta charset=utf-8>
+<meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" /> 
+<meta name="mobile-web-app-capable" content="yes">
+<title>Telescope Control</title>
+<style type="text/css"> 
+  
+  * {
+	  -webkit-touch-callout: none; /* prevent callout to copy image, etc when tap to hold */
+	  -webkit-text-size-adjust: none; /* prevent webkit from resizing text to fit */
+	/* make transparent link selection, adjust last value opacity 0 to 1.0 */
+	  -webkit-tap-highlight-color: rgba(0,0,0,0); 
+	  -webkit-user-select: none; /* prevent copy paste, to allow, change 'none' to 'text' */
+	  -webkit-tap-highlight-color: rgba(0,0,0,0); 
+	}
+	
+	body {
+		background-color: #000000;
+		margin: 0px;
+	}
+	canvas {
+		display:block; 
+		position:absolute; 
+		z-index: 1;
+	}
+	
+	.container {
+		width:auto;
+		text-align:center;
+		background-color:#ff0000;
+	}
+	/* Headlight toggle switch (source: http://callmenick.com/post/css-toggle-switch-examples) */
+	.cmn-toggle {
+		position: absolute;
+		margin-left: -9999px;
+		visibility: hidden;
+	}
+	.cmn-toggle + label {
+		display: block;
+		position: relative;
+		cursor: pointer;
+		outline: none;
+		user-select: none;
+	}
+	input.cmn-toggle-round-flat + label {
+		background-color: transparent;
+		border-radius: 10%;
+		border: 2px;
+		border-style: solid;
+		border-color: white;
+		text-align:center;
+    
+		padding-top: 20%;
+		padding-bottom: 20%;
+		font-size: 16px;
+		margin: 40% 7% 10%;
+		cursor: pointer;
+		transition: background 0.4s;
+	}
+	input.cmn-toggle-round-flat:checked + label {
+		background-color: gray;
+	}
+	.cam_button {
+		display:inline-block;
+		height:80px;
+		width:80px;
+		background-color: transparent;
+		border-radius: 100%;
+		border: 7px;
+		border-style: solid;
+		border-color: white;
+		text-align:center;
+		font-size: 16px;
+		margin-top:30%;
+		cursor: pointer;
+	}
+	
+	.cam_button:active {
+		background-color: gray;
+	}
+  
+  .off_button {
+    background-color: transparent;
+		border-radius: 10%;
+		border: 2px;
+		border-style: solid;
+		border-color: white;
+		text-align:center;
+		
+    padding-top: 20%;
+    padding-bottom: 20%;
+    font-size: 100%;
+    margin: 10% 7%;
+		cursor: pointer;
+	}
+  .off_button:active {
+  	background-color: gray;
+	}
+  
+  .light_button {
+  	background-color: transparent;
+		border-radius: 10%;
+		border: 2px;
+		border-style: solid;
+		border-color: white;
+		text-align:center;
+    
+		padding-top: 20%;
+		padding-bottom: 20%;
+    font-size: 16px;
+		margin: 40% 7% 10%;
+		cursor: pointer;
+	}
+	.light_button:checked {
+  	background-color: #b1b;
+	}
+  
+	.sidenav {
+		color: #fff;
+		height: 100%;
+		width: 13%;
+		min-width:150px;
+		position: fixed;
+		z-index: 0;
+		top: 0px;
+		background-color: #111;
+		overflow-x: hidden;
+		padding-top: 20px;
+		font-family: 'Roboto', sans-serif;
+		text-align:center;
+	}
+	
+  #movementControls {
+	margin-top:30%;
+		
+  }
+  .controlContainer {
+	text-align:center;
+
+  }
+ .moveButton {
+	margin:2px;
+	display:inline-block;
+	border:1px solid lightgrey;
+	color: lightgrey;
+	border-radius:10%;
+	cursor:pointer;
+	min-height:40px;
+	min-width: 40px;
+	line-height:40px;
+	vertical-align:middle;
+  }
+ .moveButton:hover{
+ color:black;
+ background-color: lightgrey;}
+ .moveButton.left{
+	float:left;
+	}
+ .moveButton.right{
+	float:right;
+	}
+
+  
+  
+  
+	p#stream{
+		position: relative; 
+        top: -15px; 
+	}
+	
+.slidecontainer {
+  width: 100%; /* Width of the outside container */
+}
+
+
+</style>
+<link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+
+</head>
+<ul id="messages"></ul>
+<script src="/socket.io/socket.io.js"></script>
+<script>
+var Vector2 = function (x,y) {
+	
+	this.x = x || 0; 
+	this.y = y || 0; 
+	
+};
+
+Vector2.prototype = {
+
+	reset: function ( x, y ) {
+
+		this.x = x;
+		this.y = y;
+		return this;
+	},
+	
+	copyFrom : function (v) {
+		this.x = v.x;
+		this.y = v.y;
+	},
+	
+	plusEq : function (v) {
+		this.x+=v.x;
+		this.y+=v.y;
+		
+		return this; 
+	},
+	
+	minusEq : function (v) {
+		this.x-=v.x;
+		this.y-=v.y;
+		
+		return this; 
+	},
+		
+	equals : function (v) {
+		return((this.x==v.x)&&(this.y==v.x));
+	}
+
+};
+var canvas,
+ 	c, // c is the canvas' context 2D
+	container, 
+	halfWidth, 
+	halfHeight,
+	leftTouchID = -1, 
+	leftTouchPos = new Vector2(0,0),
+	leftTouchStartPos = new Vector2(0,0),
+	leftVector = new Vector2(0,0);
+var socket = io(); // comment this out for better debugging
+var sendFlag = false;
+var wifi_status;
+var AzStepsPerDegree=68.2666;
+var ElStepsPerDegree=68.2666;
+setupCanvas();
+
+var mouseX, mouseY, 
+	// is this running in a touch capable environment?
+	mouseDown = false,
+	touches = []; // array of touch vectors;
+
+setInterval(draw, 1000/10); // draw app at 30fps
+
+window.onorientationchange = resetCanvas;  
+window.onresize = resetCanvas;  
+
+function resetCanvas (e) {  
+ 	// resize the canvas - but remember - this clears the canvas too. 
+  	canvas.width = window.innerWidth; 
+	canvas.height = window.innerHeight;
+	
+	//halfWidth = canvas.width/2; 
+	halfWidth = canvas.width;
+
+	halfHeight = canvas.height/2;
+	
+	//make sure we scroll to the top left. 
+	window.scrollTo(0,0); 
+}
+
+
+function init(){
+	
+}
+
+function draw() {
+  
+	c.clearRect(0,0,canvas.width, canvas.height); 
+
+	
+	socket.on('wifi', function(msg){
+		document.getElementById("wifiStatus").innerHTML = msg;
+		wifi_status = msg;
+	});
+	
+	socket.on('elevation', function(msg){
+		document.getElementById("ElValue").innerHTML = convertToDMS(msg/ElStepsPerDegree);
+		
+	});
+	
+	socket.on('azimuth', function(msg){
+		document.getElementById("AzValue").innerHTML = convertToDMS(msg/AzStepsPerDegree);
+		
+	});
+	
+	socket.on('cam', function(msg){
+		document.getElementById("stream").innerHTML = img;
+	});
+	
+}
+
+function convertToDMS(dd){
+	var dir = dd < 0
+	
+	var absDD = Math.abs(dd);
+	var deg = absDD | 0;
+	var frac = absDD - deg;
+	var min = (frac * 60) | 0;
+	var sec = frac*3600 - min * 60;
+	sec = Math.round(sec*100) /100;
+	deg = (dir ? -deg : deg);
+	//var DMS = new Array();
+	//DMS['deg']=deg;
+	//DMS['min']=min;
+	//DMS['sec']=sec;
+    //return DMS;
+	return deg +"&deg; "+min+"' "+sec+"\"";
+}
+
+/*
+Source for keyboard detection: Braden Best:
+https://stackoverflow.com/questions/5203407/how-to-detect-if-multiple-keys-are-pressed-at-once-using-javascript
+*/	
+var map = {};
+onkeydown = onkeyup = function(e){
+    e = e || event; // to deal with IE
+    map[e.keyCode] = e.type == 'keydown';
+	
+	if(map[38]){ // ArrowUp
+		//leftVector.y = -255;
+		moveControl(document.getElementById("upButton"));
+	}
+	if(map[40]){ // ArrowDown
+		//leftVector.y = 255;
+		moveControl(document.getElementById("downButton"));
+	}
+	if(map[37]){ // ArrowLeft
+		//leftVector.x = -255;
+		moveControl(document.getElementById("leftButton"));
+	}
+	if(map[39]){ // ArrowRight
+		//leftVector.x = 255;
+		moveControl(document.getElementById("rightButton"));
+	}
+}
+
+function setupCanvas() {
+	
+	canvas = document.createElement( 'canvas' );
+	c = canvas.getContext( '2d' );
+	container = document.createElement( 'div' );
+	container.className = "container";
+
+	document.body.appendChild( container );
+	container.appendChild(canvas);	
+
+	resetCanvas(); 
+	
+	c.strokeStyle = "#ffffff";
+	c.lineWidth =2;	
+}
+function moveControl(button){
+	var degrees = document.getElementById('degs').value;
+	degrees = (degrees ? degrees : 0);
+
+	var minutes = document.getElementById('mins').value;
+	minutes = (minutes ? minutes : 0);
+
+	switch(button.id){
+		case 'upButton':
+		  console.log('Elevation change: '+degrees+' degrees, '+minutes+' minutes.')
+		  socket.emit('elevation', degrees, minutes);
+		  break;
+		case 'leftButton':
+		  console.log('Azimuth change: -'+degrees+' degrees, -'+minutes+' minutes.')
+		  socket.emit('azimuth', -degrees, -minutes);
+		  break;
+		case "rightButton":
+		  console.log('Azimuth change: '+degrees+' degrees, '+minutes+' minutes.')
+		  socket.emit('azimuth', degrees, minutes);
+		  break;
+		case "downButton":
+		  console.log('Elevation change: -'+degrees+' degrees, -'+minutes+' minutes.')
+		  socket.emit('elevation', -degrees, -minutes);
+		break;
+	}
+}
+	
+function takePicture() {
+	socket.emit('cam', 1);
+}
+
+function shutdown() {
+	if(confirm("This will shutdown the Pi.\nAre you sure?")){
+		alert('Shutting down...\nPlease wait 20s before turning the power off.');
+		socket.emit('power', 1);
+	}
+}
+
+function fireOnReady() { 
+	// execute after DOM is loaded
+	
+	
+	//img = '<img src="http://' + host + ':9000/?action=stream" style="height:100vh;"/>';
+	img='<img src="http://conrady.privatedns.org/octocam/?action=stream" style="height:100vh;"/>';
+	document.getElementById("stream").innerHTML = img;
+
+	var slider = document.getElementById("myRange");
+	var output = document.getElementById("demo");
+	tiltValue.innerHTML = slider.value; // Display the default slider value
+
+	// Update the current slider value (each time you drag the slider handle)
+	slider.oninput = function() {
+
+	// Update the current slider value (each time you drag the slider handle)
+	  tiltValue.innerHTML = this.value;
+	  socket.emit('focus', this.value);
+	}
+
+}
+
+
+
+if (document.readyState === 'complete') {
+    fireOnReady();
+} else {
+    document.addEventListener("DOMContentLoaded", fireOnReady);
+}
+
+</script>
+<body scroll="no" style="overflow: hidden">
+<center>
+<p id="stream"></p>
+</center>
+
+<div class="sidenav">
+ <!--  <center id="temp" style="padding:40%;">0°C</center> -->
+<!--   <center id="volt" style="padding:40%;">0V</center> -->
+  <div id="wifiOuter" style="padding:5%;">
+  Wifi:<br/>
+  <span id='wifiStatus'> 00/77 | -00 dB</span>
+  </div>
+<div id="AzimuthAngle" style="padding:5%;">
+  Azimuth:<br/>
+  <span id='AzValue'> 0 &deg;</span>
+  </div>
+<div id="ElevationAngle" style="padding:5%;">
+  Elevation:<br/>
+  <span id='ElValue'> 0 &deg;</span>
+  </div>
+  
+</div>
+<div class="sidenav" style="right:0;z-index: 2;">
+<!--   <center class="off_button" type="button" onclick="shutdown()">OFF</center> -->
+  <div class="cam_button" type="button" onclick="takePicture()"></div>
+  
+	<div id="movementControls">
+		<div class="controlContainer">
+			<div id="upButton" class="moveButton up" onclick="moveControl(this)"> UP </div> 
+		</div>
+		<div class="controlContainer">
+			<div id="leftButton" class="moveButton left" onclick="moveControl(this)"> LT </div> 
+			<div id="centerButton" class="moveButton center"> X </div> 
+
+   		    <!--<input type="text" id="center" class="moveButton center" value="10" size="5"/> -->
+			<div id="rightButton" class="moveButton right" onclick="moveControl(this)"> RT </div> 
+		</div>
+		<div class="controlContainer">
+			<div id="downButton" class="moveButton down" onclick="moveControl(this)"> DN </div> 
+		</div>
+	</div>
+	<div class="ControlContainer">
+	<input type="text" value="1" id="degs" name="degs"/><label for="degs">Degrees</label>
+	<input type="text" value="0" id="mins" name="mins"/><label for="mins">Minutes</label>
+	</div>
+	<center id="focusSlider" style="padding:5%;">
+		<div>Focus:<span id="tiltValue"></span></div>
+		<div class="slidecontainer">
+			<input type="range" min="10" max="100" value="50" class="slider" id="myRange">
+		</div>
+	</center>
+</div>
+
+</body>
+</html>
