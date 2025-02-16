@@ -41,12 +41,12 @@ def elevation_get():
 	return jsonify(telescope.position.to_string())
 
 #@app.route('/azimuth/<float:angle>',methods=['PUT','POST'])
-@app.post('/azimuth/<float:angle>')
+@app.post('/azimuth/<angle>')
 def azimuth_post(angle):
 	telescope.set_azimuth(angle)        
 	return jsonify(telescope.position.to_string())
 
-@app.route('/elevation/<float:angle>',methods=['PUT','POST'])
+@app.route('/elevation/<angle>',methods=['PUT','POST'])
 def elevation(angle):
 	if request.method == 'PUT':
 		angle = telescope.position.elevation+angle
