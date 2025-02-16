@@ -50,12 +50,12 @@ class stepperMotor(Resource):
 
 		data = request.get_jason()
 
-		if 'angle' not in data
+		if 'angle' not in data:
 			raise InvalidAPIUsage("angle data is missing from payload!", status_code=404)
 
 		newAngle = data['angle']
 		direction=stepper.FORWARD
-		if (newAngle<self.currentAngle)
+		if newAngle < self.currentAngle:
 			direction = stepper.BACKWARD
 
 		changeSteps = abs(currentAngle-newAngle)*self.steps_per_degree
