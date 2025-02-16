@@ -74,21 +74,20 @@ app = Flask(__name__)
 
 # making a class for a particular resource 
 # other methods include put, delete, etc. 
-class Hello(Resource): 
-
-	# corresponds to the GET request. 
-	# this function is called whenever there 
-	# is a GET request for this resource 
-	def get(self): 
-
-		return jsonify({'message': 'hello world'}) 
-
-	# Corresponds to POST request 
-	def post(self): 
-
-		data = request.get_json()	 # status code 
-		return jsonify({'data': data}), 201
-
+@app.get('/')
+def  hello_world():
+	PAGE = """\
+	<html>
+	<head>
+	<title>Telescope</title>
+	</head>
+	<body>
+	<h1>Hello, World!</h1>
+	</body>
+	</html>
+	"""
+	return PAGE.encode('utf-8')
+	
 @app.get('/azimuth/')
 def azimuth_get():
 	return jsonify(telescope.position)
