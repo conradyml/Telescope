@@ -27,6 +27,11 @@ class Position:
 		
 	def set_elevation(self,newAngle):
 		self.elevation = newAngle
+	
+	def to_string(self):
+		return (f'{"azimuth":"{self.azimuth}", "elevation":"{self.elevation}"}')
+		
+
 
 class Telescope:
 	def __init__(self,azimuth_motor,azDegree,elevation_motor,elDegree,focus_motor):
