@@ -55,6 +55,8 @@ class Telescope:
 			for i in range(changeSteps):
 				self.azimuth_motor.onestep(direction=stepper.FORWARD, style=stepper.INTERLEAVE)
 				self.position.change_azimuth(1/self.azimuth_steps_per_degree)
+		
+		self.azimuth_motor.release()
 
 
 	def set_elevation(self,newElevation):
@@ -68,6 +70,8 @@ class Telescope:
 			for i in range(changeSteps):
 				self.elevation_motor.onestep(direction=stepper.FORWARD, style=stepper.INTERLEAVE)
 				self.position.change_elevation(1/self.elevation_steps_per_degree)
+		
+		self.elevation_motor.release()
 		
 # driver function 
 #if __name__ == '__main__': 
