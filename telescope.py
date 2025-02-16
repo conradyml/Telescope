@@ -90,7 +90,7 @@ def  hello_world():
 	
 @app.get('/azimuth/')
 def azimuth_get():
-	return jsonify(telescope.position)
+	return telescope.position.to_json()
 
 @app.get('/elevation/')
 def elevation_get():
@@ -114,7 +114,7 @@ def elevation(angle):
 
 # another resource to calculate the square of a number 
 @app.route('/square/<int:num>')
-def get(self, num): 
+def get(num): 
 	return jsonify({'square': num**2}) 
 
 # adding exception response.
