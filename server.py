@@ -42,6 +42,7 @@ def elevation_get():
 
 @app.route('/azimuth/<angle>',methods=['PUT','POST'])
 def azimuth(angle):
+	angle = float(angle)
 	if request.method == 'PUT':
 		angle = telescope.position.azimuth+angle
 
