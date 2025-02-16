@@ -48,8 +48,7 @@ class Hello(Resource):
 	def post(self): 
 
 		data = request.get_json()	 # status code 
-            
-            return jsonify({'data': data}), 201
+        return jsonify({'data': data}), 201
 
 class stepperMotor(Resource):
     def __init__(self, path, stepm, steps):
