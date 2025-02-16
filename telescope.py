@@ -43,7 +43,7 @@ class Telescope:
 		if self.position.azimuth < newAzimuth:
 			direction=stepper.BACKWARD
 
-		changeSteps = abs(self.position.azimuth-newAzimuth)*self.azimuth_steps_per_degree
+		changeSteps = int(abs(self.position.azimuth-newAzimuth)*self.azimuth_steps_per_degree)
 		
 		for i in range(changeSteps):
 			self.azimuth_motor.onestep(direction=direction, style=stepper.INTERLEAVE)
@@ -54,7 +54,7 @@ class Telescope:
 		if self.position.elevation < newElevation:
 			direction=stepper.BACKWARD
 
-		changeSteps = abs(self.position.elevation-newElevation)*self.elevation_steps_per_degree
+		changeSteps = int(abs(self.position.elevation-newElevation)*self.elevation_steps_per_degree)
 		
 		for i in range(changeSteps):
 			self.elevation_motor.onestep(direction=direction, style=stepper.INTERLEAVE)
