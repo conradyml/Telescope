@@ -9,18 +9,68 @@ from adafruit_motor import stepper
 
 # using flask_restful 
 from flask import Flask, jsonify, request 
-from flask_restful import Resource, Api 
 
 kit = MotorKit(address=0x60)
 
-for i in range(200):
-	kit.stepper1.onestep()
-kit.stepper1.release()
+#In astronomy, "telescope azimuth" refers to the horizontal angle of a telescope's pointing direction, measured 
+# clockwise from north, while "elevation" refers to the vertical angle of the telescope pointing upwards from the horizon, 
+class Position:
+	def __init__(self,azimuth,elevation):
+		self.azimuth = azimuth
+		self.elevation = elevation
+
+	def changeAzimuth(self,changeAngle):
+		self.azimuth = self.azimuth+changeAngle
+		
+	def changeElevation(self,changeAngle):
+		self.elevation = self.elevation+changeAngle
+
+	def setAzimuth(self,changeAngle):
+		self.azimuth = changeAngle
+		
+	def setElevation(self,newAngle):
+		self.elevation = newAngle
+
+class Telescope:
+	def __init__(self,azimuth_motor,azDegree,elevation_motor,elDegree,focus_motor):
+		self.position = Position(0,0)
+		self.focus = 0
+		self.azimuth_motor = azimuth_motor
+		self.azimuth_steps_per_degree = azDegree
+		self.elevation_motor = elevation_motor
+		self.elevation_steps_per_degree = elDegree
+		self.focus_motor = focus_motor
+
+	def setAzimuth(self,newAzimuth):
+		direction=stepper.FORWARD
+		if self.position.azimuth < newAzimuth:
+			direction=stepper.BACKWARD
+
+		changeSteps = abs(self.position.azimuth-newAzimuth)*self.azimuth_steps_per_degree
+		
+		for i in range(changeSteps):
+			self.azimuth_motor.onestep(direction=direction, style=stepper.INTERLEAVE)
+			self.position.changeAzimuth(1/self.azimuth_steps_per_degree)
+
+	def setElevtion(self,newElevation):
+		direction=stepper.FORWARD
+		if self.position.elevation < newElevation:
+			direction=stepper.BACKWARD
+
+		changeSteps = abs(self.position.elevation-newElevation)*self.elevation_steps_per_degree
+		
+		for i in range(changeSteps):
+			self.elevation_motor.onestep(direction=direction, style=stepper.INTERLEAVE)
+			self.position.changeElevation(1/self.elevation_steps_per_degree)
+		
+
+telescope = Telescope(kit.stepper2,50,kit.stepper1,50,None)
+
+
+
 
 # creating the flask app 
 app = Flask(__name__) 
-# creating an API object 
-api = Api(app) 
 
 # making a class for a particular resource 
 # other methods include put, delete, etc. 
@@ -39,46 +89,34 @@ class Hello(Resource):
 		data = request.get_json()	 # status code 
 		return jsonify({'data': data}), 201
 
-class azimuth(Resource):
-	def __init__(self, *args, **kwargs):
-		super().__init__(*args, **kwargs)
-		#self.stepper_motor = stepm
-		self.stepper_motor = kit.stepper1
-		#self.steps_per_degree=steps
-		self.steps_per_degree=50
-		self.currentAngle = 0
+@app.get('/azimuth/')
+def azimuth_get():
+	return jsonify(telescope.position)
 
-	def get(self):
+@app.get('/elevation/')
+def elevation_get():
+	return jsonify(telescope.position)
 
-		return jsonify({'angle': self.currentAngle})
+@app.route('/azimuth/<float:angle>',methods=['PUT','POST'])
+def azimuth(angle):
+	if request.method == 'PUT':
+		angle = telescope.position.azimuth+angle
 
-	def put(self):
+	telescope.setAzimuth(angle)        
+	return jsonify(telescope.position)
 
-		data = request.get_json()
+@app.route('/elevation/<float:angle>',methods=['PUT','POST'])
+def elevation(angle):
+	if request.method == 'PUT':
+		angle = telescope.position.elevation+angle
 
-		if 'angle' not in data:
-			raise InvalidAPIUsage("angle data is missing from payload!", status_code=404)
-
-		newAngle = data['angle']
-		direction=stepper.FORWARD
-		if newAngle < self.currentAngle:
-			direction = stepper.BACKWARD
-
-		changeSteps = abs(self.currentAngle-newAngle)*self.steps_per_degree
-
-		for i in range(changeSteps):
-			self.stepper_motor.onestep(direction=direction, style=stepper.INTERLEAVE)
-
-		self.currentAngle = newAngle
-		return jsonify({'angle': self.currentAngle})
-
+	telescope.setElevation(angle)        
+	return jsonify(telescope.position)
 
 # another resource to calculate the square of a number 
-class Square(Resource): 
-
-	def get(self, num): 
-
-		return jsonify({'square': num**2}) 
+@app.route('/square/<int:num>')
+def get(self, num): 
+	return jsonify({'square': num**2}) 
 
 # adding exception response.
 class InvalidAPIUsage(Exception):
@@ -97,10 +135,6 @@ class InvalidAPIUsage(Exception):
 		return rv
 
 
-# adding the defined resources along with their corresponding urls 
-api.add_resource(Hello, '/') 
-api.add_resource(Square, '/square/<int:num>') 
-api.add_resource(azimuth, '/azimuth/')
 
 @app.errorhandler(InvalidAPIUsage)
 def invalid_api_usage(e):
