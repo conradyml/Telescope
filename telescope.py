@@ -16,16 +16,16 @@ class Position:
 		self.azimuth = azimuth
 		self.elevation = elevation
 
-	def changeAzimuth(self,changeAngle):
+	def change_azimuth(self,changeAngle):
 		self.azimuth = self.azimuth+changeAngle
 		
-	def changeElevation(self,changeAngle):
+	def change_elevation(self,changeAngle):
 		self.elevation = self.elevation+changeAngle
 
-	def setAzimuth(self,changeAngle):
+	def set_azimuth(self,changeAngle):
 		self.azimuth = changeAngle
 		
-	def setElevation(self,newAngle):
+	def set_elevation(self,newAngle):
 		self.elevation = newAngle
 
 class Telescope:
@@ -38,7 +38,7 @@ class Telescope:
 		self.elevation_steps_per_degree = elDegree
 		self.focus_motor = focus_motor
 
-	def setAzimuth(self,newAzimuth):
+	def set_azimuth(self,newAzimuth):
 		direction=stepper.FORWARD
 		if self.position.azimuth < newAzimuth:
 			direction=stepper.BACKWARD
@@ -47,9 +47,9 @@ class Telescope:
 		
 		for i in range(changeSteps):
 			self.azimuth_motor.onestep(direction=direction, style=stepper.INTERLEAVE)
-			self.position.changeAzimuth(1/self.azimuth_steps_per_degree)
+			self.position.change_azimuth(1/self.azimuth_steps_per_degree)
 
-	def setElevtion(self,newElevation):
+	def set_elevation(self,newElevation):
 		direction=stepper.FORWARD
 		if self.position.elevation < newElevation:
 			direction=stepper.BACKWARD
@@ -58,7 +58,7 @@ class Telescope:
 		
 		for i in range(changeSteps):
 			self.elevation_motor.onestep(direction=direction, style=stepper.INTERLEAVE)
-			self.position.changeElevation(1/self.elevation_steps_per_degree)
+			self.position.change_elevation(1/self.elevation_steps_per_degree)
 		
 # driver function 
 #if __name__ == '__main__': 
