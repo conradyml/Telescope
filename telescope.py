@@ -47,10 +47,10 @@ class Telescope:
 
 		changeSteps = int(abs(self.position.azimuth-newAzimuth)*self.azimuth_steps_per_degree)
 		
-		if self.position.azimuth < newAzimuth:
+		if self.position.azimuth > newAzimuth:
 			for i in range(changeSteps):
 				self.azimuth_motor.onestep(direction=stepper.BACKWARD, style=stepper.INTERLEAVE)
-				self.position.change_azimuth(1/self.azimuth_steps_per_degree)
+				self.position.change_azimuth(-1/self.azimuth_steps_per_degree)
 		else:
 			for i in range(changeSteps):
 				self.azimuth_motor.onestep(direction=stepper.FORWARD, style=stepper.INTERLEAVE)
@@ -60,7 +60,7 @@ class Telescope:
 	def set_elevation(self,newElevation):
 		
 		changeSteps = int(abs(self.position.elevation-newElevation)*self.elevation_steps_per_degree)
-		if self.position.elevation < newElevation:
+		if self.position.elevation > newElevation:
 			for i in range(changeSteps):
 				self.elevation_motor.onestep(direction=stepper.BACKWARD, style=stepper.INTERLEAVE)
 				self.position.change_elevation(-1/self.elevation_steps_per_degree)
