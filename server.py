@@ -7,6 +7,9 @@ import pwmio
 from adafruit_motorkit import MotorKit
 from adafruit_motor import stepper
 
+# using flask_restful 
+from flask import Flask, jsonify, request 
+
 kit = MotorKit(address=0x60)
 
 #In astronomy, "telescope azimuth" refers to the horizontal angle of a telescope's pointing direction, measured 
@@ -60,6 +63,84 @@ class Telescope:
 			self.elevation_motor.onestep(direction=direction, style=stepper.INTERLEAVE)
 			self.position.changeElevation(1/self.elevation_steps_per_degree)
 		
+
+telescope = Telescope(kit.stepper2,50,kit.stepper1,50,None)
+
+
+
+
+# creating the flask app 
+app = Flask(__name__) 
+
+# making a class for a particular resource 
+# other methods include put, delete, etc. 
+@app.get('/')
+def  hello_world():
+	PAGE = """\
+	<html>
+	<head>
+	<title>Telescope</title>
+	</head>
+	<body>
+	<h1>Hello, World!</h1>
+	</body>
+	</html>
+	"""
+	return PAGE.encode('utf-8')
+	
+@app.get('/azimuth/')
+def azimuth_get():
+	return telescope.position.to_json()
+
+@app.get('/elevation/')
+def elevation_get():
+	return jsonify(telescope.position)
+
+@app.route('/azimuth/<float:angle>',methods=['PUT','POST'])
+def azimuth(angle):
+	if request.method == 'PUT':
+		angle = telescope.position.azimuth+angle
+
+	telescope.setAzimuth(angle)        
+	return jsonify(telescope.position)
+
+@app.route('/elevation/<float:angle>',methods=['PUT','POST'])
+def elevation(angle):
+	if request.method == 'PUT':
+		angle = telescope.position.elevation+angle
+
+	telescope.setElevation(angle)        
+	return jsonify(telescope.position)
+
+# another resource to calculate the square of a number 
+@app.route('/square/<int:num>')
+def get(num): 
+	return jsonify({'square': num**2}) 
+
+# adding exception response.
+class InvalidAPIUsage(Exception):
+	status_code = 400
+
+	def __init__(self, message, status_code=None, payload=None):
+		super().__init__()
+		self.message = message
+		if status_code is not None:
+			self.status_code = status_code
+		self.payload = payload
+
+	def to_dict(self):
+		rv = dict(self.payload or ())
+		rv['message'] = self.message
+		return rv
+
+
+
+@app.errorhandler(InvalidAPIUsage)
+def invalid_api_usage(e):
+	return jsonify(e.to_dict()), e.status_code
+
+
 # driver function 
-#if __name__ == '__main__': 
-#	telescope = Telescope(kit.stepper2,50,kit.stepper1,50,None) 
+if __name__ == '__main__': 
+
+	app.run(debug = True, host="0.0.0.0", port=5000) 
