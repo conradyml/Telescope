@@ -34,19 +34,17 @@ def  hello_world():
 	
 @app.get('/azimuth/')
 def azimuth_get():
-	return jsonify(telescope.position.to_string)
+	return jsonify(telescope.position.to_string())
 
 @app.get('/elevation/')
 def elevation_get():
-	return jsonify(telescope.position.to_string)
+	return jsonify(telescope.position.to_string())
 
-@app.route('/azimuth/<float:angle>',methods=['PUT','POST'])
-def azimuth(angle):
-	if request.method == 'PUT':
-		angle = telescope.position.azimuth+angle
-
+#@app.route('/azimuth/<float:angle>',methods=['PUT','POST'])
+@app.post('/azimuth/<float:angle>')
+def azimuth_post(angle):
 	telescope.set_azimuth(angle)        
-	return jsonify(telescope.position.to_string)
+	return jsonify(telescope.position.to_string())
 
 @app.route('/elevation/<float:angle>',methods=['PUT','POST'])
 def elevation(angle):
@@ -54,7 +52,7 @@ def elevation(angle):
 		angle = telescope.position.elevation+angle
 
 	telescope.set_elevation(angle)        
-	return jsonify(telescope.position.to_string)
+	return jsonify(telescope.position.to_string())
 
 # another resource to calculate the square of a number 
 @app.route('/square/<int:num>')

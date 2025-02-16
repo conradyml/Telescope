@@ -55,15 +55,16 @@ class Telescope:
 			self.position.change_azimuth(1/self.azimuth_steps_per_degree)
 
 	def set_elevation(self,newElevation):
-		direction=stepper.FORWARD
-		if self.position.elevation < newElevation:
-			direction=stepper.BACKWARD
-
-		changeSteps = int(abs(self.position.elevation-newElevation)*self.elevation_steps_per_degree)
 		
-		for i in range(changeSteps):
-			self.elevation_motor.onestep(direction=direction, style=stepper.INTERLEAVE)
-			self.position.change_elevation(1/self.elevation_steps_per_degree)
+		changeSteps = int(abs(self.position.elevation-newElevation)*self.elevation_steps_per_degree)
+		if self.position.elevation < newElevation:
+			for i in range(changeSteps):
+				self.elevation_motor.onestep(direction=stepper.BACKWARD, style=stepper.INTERLEAVE)
+				self.position.change_elevation(-1/self.elevation_steps_per_degree)
+			
+			for i in range(changeSteps):
+				self.elevation_motor.onestep(direction=stepper.FORWARD, style=stepper.INTERLEAVE)
+				self.position.change_elevation(1/self.elevation_steps_per_degree)
 		
 # driver function 
 #if __name__ == '__main__': 
