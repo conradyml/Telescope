@@ -36,10 +36,12 @@ class Hello(Resource):
 		return jsonify({'data': data}), 201
 
 class stepperMotor(Resource):
-	def __init__(self, path, stepm, steps):
+	def __init__(self, path):
 		Resource.__init__(self, path)
-		self.stepper_motor = stepms
-		self.steps_per_degree=steps
+		#self.stepper_motor = stepm
+		self.stepper_motor = kit.stepper1
+		#self.steps_per_degree=steps
+		self.steps_per_degree=50
 		self.currentAngle = 0
 
 	def get(self):
@@ -94,9 +96,9 @@ class InvalidAPIUsage(Exception):
 # adding the defined resources along with their corresponding urls 
 api.add_resource(Hello, '/') 
 api.add_resource(Square, '/square/<int:num>') 
-api.add_resource(stepperMotor, '/azimuth', kit.stepper1, 50)
+api.add_resource(stepperMotor, '/azimuth')
 
-api.errorhandler(InvalidAPIUsage)
+@api.errorhandler(InvalidAPIUsage)
 def invalid_api_usage(e):
 	return jsonify(e.to_dict()), e.status_code
 
