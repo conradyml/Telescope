@@ -29,7 +29,7 @@ class Position:
 		self.elevation = newAngle
 	
 	def to_string(self):
-		return (f'{"azimuth":"{self.azimuth}", "elevation":"{self.elevation}"}')
+		return (f'{{"azimuth":"{self.azimuth}", "elevation":"{self.elevation}"}}')
 		
 
 
