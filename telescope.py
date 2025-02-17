@@ -1,15 +1,13 @@
 import time
 import board
-import busio
-import pwmio
+
 
 # using adafruit motor hat
-from adafruit_motorkit import MotorKit
-from adafruit_motor import stepper
 from adafruit_pca9685 import PCA9685
 from adafruit_motor import servo
+from adafruit_motorkit import MotorKit
 
-kit = MotorKit(address=0x60)
+kit = MotorKit(i2c=board.I2C(),address=0x60)
 
 pca = PCA9685(board.I2C(),address=0x60)
 pca.frequency = 50
@@ -81,7 +79,7 @@ class Telescope:
 
 	def set_focus(self, newFocus):
 		# Focus value is expected to be a floating point number between 0 and 1.
-			if 0 <= newFocus <= 1
+			if 0 <= newFocus <= 1:
 				self.focus_motor.fraction = newFocus
 				self.focus = newFocus
 
