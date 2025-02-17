@@ -7,7 +7,7 @@ import pwmio
 from telescope import Telescope
 from telescope import kit
 
-telescope = Telescope(kit.stepper2,50,kit.stepper1,50,None)
+telescope = Telescope(50,kit.stepper1,50,None)
 
 # using flask_restful 
 from flask import Flask, jsonify, request 
@@ -40,6 +40,11 @@ def azimuth_get():
 def elevation_get():
 	return jsonify(telescope.position.to_string())
 
+@app.get('/focus/')
+def elevation_get():
+	return jsonify(telescope.focus)
+
+
 @app.route('/azimuth/<angle>',methods=['PUT','POST'])
 def azimuth(angle):
 	angle = float(angle)
@@ -58,10 +63,16 @@ def elevation(angle):
 	telescope.set_elevation(angle)        
 	return jsonify(telescope.position.to_string())
 
-# another resource to calculate the square of a number 
-@app.route('/square/<int:num>')
-def get(num): 
-	return jsonify({'square': num**2}) 
+@app.route('/focus/<value>',methods=['PUT','POST'])
+def elevation(value):
+	angle = float(value)
+	if request.method == 'PUT':
+		value = telescope.focus+value
+
+	telescope.set_focus(value)        
+	return jsonify(telescope.focus)
+
+
 
 # adding exception response.
 class InvalidAPIUsage(Exception):
