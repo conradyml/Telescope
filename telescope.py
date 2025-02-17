@@ -6,6 +6,7 @@ import board
 from adafruit_pca9685 import PCA9685
 from adafruit_motor import servo
 from adafruit_motorkit import MotorKit
+from adafruit_motorkit import stepper
 
 kit = MotorKit(i2c=board.I2C(),address=0x60)
 
