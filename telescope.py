@@ -1,6 +1,6 @@
 import time
 import board
-
+from busio import I2C
 
 # using adafruit motor hat
 from adafruit_pca9685 import PCA9685
@@ -8,10 +8,12 @@ from adafruit_motor import servo
 from adafruit_motorkit import MotorKit
 from adafruit_motorkit import stepper
 
-kit = MotorKit(i2c=board.I2C(),address=0x60)
+i2c = I2C(board.SCL, board.SDA, frequency=400_000)
 
+kit = MotorKit(i2c,address=0x60)
+kit.frequency(50)
 pca = PCA9685(board.I2C(),address=0x60)
-pca.frequency = 50
+#pca.frequency = 50
 servo1 = servo.Servo(pca.channels[1], min_pulse=500, max_pulse=2400,actuation_range=135)
 
 #In astronomy, "telescope azimuth" refers to the horizontal angle of a telescope's pointing direction, measured 
