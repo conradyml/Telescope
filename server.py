@@ -7,7 +7,8 @@ import pwmio
 from telescope import Telescope
 from telescope import kit
 
-telescope = Telescope(50,kit.stepper1,50,None)
+#telescope = Telescope(50,kit.stepper1,50,None)
+telescope = Telescope(50,50)
 
 # using flask_restful 
 from flask import Flask, jsonify, request 
