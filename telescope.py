@@ -6,7 +6,7 @@ from busio import I2C
 from adafruit_pca9685 import PCA9685
 from adafruit_motor import servo
 from adafruit_motorkit import MotorKit
-from adafruit_motorkit import stepper
+from adafruit_motor import stepper
 
 i2c = I2C(board.SCL, board.SDA, frequency=400_000)
 
