@@ -4,17 +4,17 @@ from busio import I2C
 
 # using adafruit motor hat
 from adafruit_pca9685 import PCA9685
-from adafruit_motor import servo
+#from adafruit_motor import servo
 from adafruit_motorkit import MotorKit
 from adafruit_motor import stepper
 
 i2c = I2C(board.SCL, board.SDA, frequency=400_000)
 
 kit = MotorKit(i2c,address=0x60)
-kit.frequency(50)
-pca = PCA9685(board.I2C(),address=0x60)
+#kit.frequency(50)
+#pca = PCA9685(board.I2C(),address=0x60)
 #pca.frequency = 50
-servo1 = servo.Servo(pca.channels[1], min_pulse=500, max_pulse=2400,actuation_range=135)
+#servo1 = servo.Servo(pca.channels[1], min_pulse=500, max_pulse=2400,actuation_range=135)
 
 #In astronomy, "telescope azimuth" refers to the horizontal angle of a telescope's pointing direction, measured 
 # clockwise from north, while "elevation" refers to the vertical angle of the telescope pointing upwards from the horizon, 
@@ -48,7 +48,7 @@ class Telescope:
 		self.azimuth_steps_per_degree = azimuthDegree
 		self.elevation_motor = kit.stepper1
 		self.elevation_steps_per_degree = elevationDegree
-		self.focus_motor = servo1
+#		self.focus_motor = servo1
 
 	def set_azimuth(self,newAzimuth):
 
@@ -83,7 +83,7 @@ class Telescope:
 	def set_focus(self, newFocus):
 		# Focus value is expected to be a floating point number between 0 and 1.
 			if 0 <= newFocus <= 1:
-				self.focus_motor.fraction = newFocus
+	#			self.focus_motor.fraction = newFocus
 				self.focus = newFocus
 
 			return self.focus
