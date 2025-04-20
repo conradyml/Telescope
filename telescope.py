@@ -8,9 +8,9 @@ from adafruit_pca9685 import PCA9685
 from adafruit_motorkit import MotorKit
 from adafruit_motor import stepper
 
-#i2c = I2C(board.SCL, board.SDA, frequency=400_000)
+i2c = I2C(board.SCL, board.SDA, frequency=400_000)
 
-kit = MotorKit(address=0x60)
+kit = MotorKit(i2c=i2c,address=0x60)
 #kit.frequency(50)
 #pca = PCA9685(board.I2C(),address=0x60)
 #pca.frequency = 50

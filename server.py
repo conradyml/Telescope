@@ -5,7 +5,6 @@ import pwmio
 
 # using adafruit motor hat
 from telescope import Telescope
-from telescope import kit
 
 #telescope = Telescope(50,kit.stepper1,50,None)
 telescope = Telescope(50,50)
