@@ -3,7 +3,7 @@ import board
 from busio import I2C
 
 # using adafruit motor hat
-from adafruit_pca9685 import PCA9685
+#from adafruit_pca9685 import PCA9685
 #from adafruit_motor import servo
 from adafruit_motorkit import MotorKit
 from adafruit_motor import stepper
