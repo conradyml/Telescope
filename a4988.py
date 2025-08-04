@@ -13,12 +13,12 @@ class A4988:
 	def __init__(self,dir_pin, step_pin,slp_pin,rst_pin):
 		self.DIR_PIN=dir_pin
 		self.STEP_PIN=step_pin
-		self.SLP_PING=slp_pin
+		self.SLP_PIN=slp_pin
 		self.RST_PIN=rst_pin
 
 		GPIO.setup(self.DIR_PIN, GPIO.OUT)
 		GPIO.setup(self.STEP_PIN, GPIO.OUT)
-		GPIO.setup(self.SLP_PING, GPIO.OUT)
+		GPIO.setup(self.SLP_PIN, GPIO.OUT)
 		GPIO.setup(self.RST_PIN, GPIO.OUT)
 
 	# Function to move the motor
