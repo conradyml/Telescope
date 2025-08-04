@@ -1,29 +1,10 @@
 import time
-import board
-from busio import I2C
+import threading
+from a4988 import A4988
 
-# using adafruit motor hat
-from adafruit_pca9685 import PCA9685
-from adafruit_motor import servo
-#from adafruit_motorkit import MotorKit
-from adafruit_motor import stepper
-
-i2c = I2C(board.SCL, board.SDA)
-
-#kit = MotorKit(i2c=i2c,address=0x60)
-#kit.frequency(50)
-pca = PCA9685(board.I2C(),address=0x60)
-pca.frequency = 1600
-servo1 = servo.Servo(pca.channels[1], min_pulse=500, max_pulse=2400,actuation_range=135)
-# setting stepper1 to use M1 and M2 on the hat.
-pca.channels[8].duty_cycle = 0xFFFF
-pca.channels[13].duty_cycle = 0xFFFF
-stepper1 = stepper.StepperMotor(pca.channels[9], pca.channels[10], pca.channels[11], pca.channels[12])
-
-# setting stepper2 to use M3 and M4 on the hat.
-pca.channels[7].duty_cycle = 0xFFFF
-pca.channels[2].duty_cycle = 0xFFFF
-stepper2 = stepper.StepperMotor(pca.channels[4], pca.channels[3], pca.channels[5], pca.channels[6])
+motorA = A4988(24,23,22,25)
+motorE = A4988(9,10,11,12)
+motorF = A4988(5,6,13,26)
 
 #In astronomy, "telescope azimuth" refers to the horizontal angle of a telescope's pointing direction, measured 
 # clockwise from north, while "elevation" refers to the vertical angle of the telescope pointing upwards from the horizon, 
@@ -48,46 +29,32 @@ class Position:
 		return (f'{{"azimuth":"{self.azimuth}", "elevation":"{self.elevation}"}}')
 		
 
-
 class Telescope:
 	def __init__(self,azimuthDegree,elevationDegree):
 		self.position = Position(0,0)
 		self.focus = 0
-		self.azimuth_motor = stepper2
+		self.azimuth_motor = motorA
 		self.azimuth_steps_per_degree = azimuthDegree
-		self.elevation_motor = stepper1
+		self.elevation_motor = motorE
 		self.elevation_steps_per_degree = elevationDegree
-		self.focus_motor = servo1
+		self.focus_motor = motorF
+		self.threadA = None
+		self.threadE = None
 
 	def set_azimuth(self,newAzimuth):
 
-		changeSteps = int(abs(self.position.azimuth-newAzimuth)*self.azimuth_steps_per_degree)
-		
-		if self.position.azimuth > newAzimuth:
-			for i in range(changeSteps):
-				self.azimuth_motor.onestep(direction=stepper.BACKWARD, style=stepper.INTERLEAVE)
-				self.position.change_azimuth(-1/self.azimuth_steps_per_degree)
-		else:
-			for i in range(changeSteps):
-				self.azimuth_motor.onestep(direction=stepper.FORWARD, style=stepper.INTERLEAVE)
-				self.position.change_azimuth(1/self.azimuth_steps_per_degree)
-		
-		self.azimuth_motor.release()
+		changeSteps = int((self.position.azimuth-newAzimuth)*self.azimuth_steps_per_degree)
+		self.threadA = threading.Thread(target=self.azimuth_motor.move, args=(changeSteps))
+		self.threadA.start()
+		#self.azimuth_motor.move(changeSteps)
+		self.azimuth_motor.sleep()
 
 
 	def set_elevation(self,newElevation):
 		
-		changeSteps = int(abs(self.position.elevation-newElevation)*self.elevation_steps_per_degree)
-		if self.position.elevation > newElevation:
-			for i in range(changeSteps):
-				self.elevation_motor.onestep(direction=stepper.BACKWARD, style=stepper.INTERLEAVE)
-				self.position.change_elevation(-1/self.elevation_steps_per_degree)
-		else:	
-			for i in range(changeSteps):
-				self.elevation_motor.onestep(direction=stepper.FORWARD, style=stepper.INTERLEAVE)
-				self.position.change_elevation(1/self.elevation_steps_per_degree)
-		
-		self.elevation_motor.release()
+		changeSteps = int((self.position.elevation-newElevation)*self.elevation_steps_per_degree)
+		self.elevation_motor.move(changeSteps)
+		#self.elevation_motor.sleep()
 
 	def set_focus(self, newFocus):
 		# Focus value is expected to be a floating point number between 0 and 1.
