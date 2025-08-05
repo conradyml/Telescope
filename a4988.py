@@ -7,7 +7,7 @@ import RPi.GPIO as GPIO
 GPIO.setmode(GPIO.BCM)
 class Direction(Enum):
 	FORWARD=1
-	REVERSE=1
+	REVERSE=0
 
 class A4988:
 	def __init__(self,dir_pin, step_pin,slp_pin,rst_pin):
@@ -38,14 +38,15 @@ class A4988:
 			GPIO.output(self.STEP_PIN, GPIO.LOW)
 			time.sleep(delay)
 
-	def reset(self,hold=100):
+	def reset(self,hold=1):
 		GPIO.output(self.RST_PIN, GPIO.LOW)
 		time.sleep(hold)
 		GPIO.output(self.RST_PIN, GPIO.HIGH)
 
-	def sleep(self,hold=100):
+	def sleep(self,hold=1):
 		GPIO.output(self.SLP_PIN, GPIO.LOW)
 		time.sleep(hold)
 		GPIO.output(self.SLP_PIN, GPIO.HIGH)
+
 
 
