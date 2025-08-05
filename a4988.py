@@ -5,9 +5,8 @@ import RPi.GPIO as GPIO
 
 # Set up GPIO mode
 GPIO.setmode(GPIO.BCM)
-class Direction(Enum):
-	FORWARD=1
-	REVERSE=0
+FORWARD = 1
+REVERSE = 0
 
 class A4988:
 	def __init__(self,dir_pin, step_pin,slp_pin,rst_pin):
@@ -23,13 +22,13 @@ class A4988:
 
 	# Function to move the motor
 	# speed is steps per second
-	def move(self, steps, direction=Direction.FORWARD, speed=500):
+	def move(self, steps, direction=FORWARD, speed=500):
 		if steps<0:
 			steps=abs(steps)
-			if direction == Direction.REVERSE:
-				direction = Direction.FORWARD
+			if direction == REVERSE:
+				direction = FORWARD
 			else:
-				direction = Direction.REVERSE
+				direction = REVERSE
 		GPIO.output(self.DIR_PIN, direction)
 		delay = 1 / speed
 		for _ in range(steps):
