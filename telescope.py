@@ -44,7 +44,7 @@ class Telescope:
 	def set_azimuth(self,newAzimuth):
 
 		changeSteps = int((self.position.azimuth-newAzimuth)*self.azimuth_steps_per_degree)
-		self.threadA = threading.Thread(target=self.azimuth_motor.move, args=(changeSteps))
+		self.threadA = threading.Thread(target=self.azimuth_motor.move, args=(changeSteps,))
 		self.threadA.start()
 		#self.azimuth_motor.move(changeSteps)
 		self.azimuth_motor.sleep()
