@@ -26,7 +26,7 @@ class A4988:
 	# speed is steps per second
 	def move(self, steps, direction=FORWARD, speed=500, interrupt_event=threading.Event()):
 		count=0
-		while not interrupt_event.is_set():
+		while not interrupt_event.is_set() and count < abs(steps):
 			if steps<0:
 				steps=abs(steps)
 				if direction == REVERSE:
@@ -42,6 +42,7 @@ class A4988:
 				time.sleep(delay)
 				count+=1
 		print(f"Completing Move Action with {count} steps.")
+
 		#return count
 
 	def reset(self,hold=1):

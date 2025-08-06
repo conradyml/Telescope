@@ -48,7 +48,7 @@ class Telescope:
 	def set_azimuth(self,newAzimuth):
 		changeSteps = int((self.position.azimuth-newAzimuth)*self.azimuth_steps_per_degree)
 		print(f"Set Azimuth called with {changeSteps} steps.")
-		if self.threadA is not None and self.threadA.isAlive():
+		if self.threadA is not None and self.threadA.is_alive():
 			print(f"Interrupt previous azimuth change.")
 			self.threadA_interrupt.set()
 			self.threadA.join()
