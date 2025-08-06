@@ -1,5 +1,5 @@
 import time
-from enum import Enum
+import threading
 import RPi.GPIO as GPIO
 
 
@@ -19,23 +19,30 @@ class A4988:
 		GPIO.setup(self.STEP_PIN, GPIO.OUT)
 		GPIO.setup(self.SLP_PIN, GPIO.OUT)
 		GPIO.setup(self.RST_PIN, GPIO.OUT)
+		self.reset()
+		self.sleep()
 
 	# Function to move the motor
 	# speed is steps per second
-	def move(self, steps, direction=FORWARD, speed=500):
-		if steps<0:
-			steps=abs(steps)
-			if direction == REVERSE:
-				direction = FORWARD
-			else:
-				direction = REVERSE
-		GPIO.output(self.DIR_PIN, direction)
-		delay = 1 / speed
-		for _ in range(steps):
-			GPIO.output(self.STEP_PIN, GPIO.HIGH)
-			time.sleep(delay)
-			GPIO.output(self.STEP_PIN, GPIO.LOW)
-			time.sleep(delay)
+	def move(self, steps, direction=FORWARD, speed=500, interrupt_event=threading.Event()):
+		count=0
+		while not interrupt_event.is_set():
+			if steps<0:
+				steps=abs(steps)
+				if direction == REVERSE:
+					direction = FORWARD
+				else:
+					direction = REVERSE
+			GPIO.output(self.DIR_PIN, direction)
+			delay = 1 / speed
+			for _ in range(steps):
+				GPIO.output(self.STEP_PIN, GPIO.HIGH)
+				time.sleep(delay)
+				GPIO.output(self.STEP_PIN, GPIO.LOW)
+				time.sleep(delay)
+				count+=1
+		print(f"Completing Move Action with {count} steps.")
+		#return count
 
 	def reset(self,hold=1):
 		GPIO.output(self.RST_PIN, GPIO.LOW)

@@ -39,17 +39,23 @@ class Telescope:
 		self.elevation_steps_per_degree = elevationDegree
 		self.focus_motor = motorF
 		self.threadA = None
+		self.threadA_interrupt = threading.Event()
 		self.threadE = None
+		self.threadE_interrupt = threading.Event()
 		self.azimuth_motor.reset()
 		self.elevation_motor.reset()
 
 	def set_azimuth(self,newAzimuth):
-
 		changeSteps = int((self.position.azimuth-newAzimuth)*self.azimuth_steps_per_degree)
-		self.threadA = threading.Thread(target=self.azimuth_motor.move, args=(changeSteps,))
+		print(f"Set Azimuth called with {changeSteps} steps.")
+		if self.threadA is not None and self.threadA.isAlive():
+			print(f"Interrupt previous azimuth change.")
+			self.threadA_interrupt.set()
+			self.threadA.join()
+			self.threadA_interrupt.clear()
+		self.threadA = threading.Thread(target=self.azimuth_motor.move, args=(changeSteps,), kwargs={'interrupt_event':self.threadA_interrupt})
 		self.threadA.start()
-		#self.azimuth_motor.move(changeSteps)
-		self.azimuth_motor.sleep()
+		#self.azimuth_motor.sleep()
 
 
 	def set_elevation(self,newElevation):
