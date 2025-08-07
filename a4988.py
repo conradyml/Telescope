@@ -30,7 +30,7 @@ class A4988:
 	# Function to move the motor
 	# speed is steps per second
 	def move(self, steps, direction=FORWARD, speed=500, callback=default_callback, callback_interval=50):
-		print("Move Start")
+		print("Enter move")
 		if steps<0:
 			print("Steps are negative")
 			steps=abs(steps)
@@ -40,11 +40,12 @@ class A4988:
 				direction = REVERSE
 		print("Calling move threaded")
 		self.thread = threading.Thread(target=self.move_threaded, args=(steps,direction,speed,callback, callback_interval))
-		print("Move End")
+		print("Exit move")
 
 		#return count
 
 	def move_threaded(self, steps, direction, speed, callback, callback_interval):
+		print("Enter move_threaded")
 		count=0
 		if self.thread is not None and self.thread.is_alive():
 			print("Thread is running")
@@ -53,6 +54,7 @@ class A4988:
 			self.thread.join()
 			self.interrupt.clear()
 			print ("Interrupt Cleared.")
+		print("move_threaded: before while")
 		while not self.interrupt.is_set() and count < abs(steps):
 			print("Enter While 1")
 			GPIO.output(self.DIR_PIN, direction)
@@ -66,7 +68,9 @@ class A4988:
 				count+=1
 				if (count % callback_interval) ==0:
 					callback(callback_interval)
+		print("move_threaded: end while")
 		callback(count % callback_interval)
+		print("Exit move_threaded")
 
 
 	def reset(self,hold=1):
