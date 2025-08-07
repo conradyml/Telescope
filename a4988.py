@@ -40,6 +40,7 @@ class A4988:
 				direction = REVERSE
 		print("Calling move threaded")
 		self.thread = threading.Thread(target=self.move_threaded, args=(steps,direction,speed,callback, callback_interval))
+		self.thread.start()
 		print("Exit move")
 
 		#return count
