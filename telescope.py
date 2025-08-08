@@ -45,7 +45,7 @@ class Telescope:
 		self.azimuth_motor.move(changeSteps, callback=self.set_az_position_steps)
 		#self.azimuth_motor.sleep()
 
-	def set_az_postion_steps(self,steps):
+	def set_az_position_steps(self,steps):
 		changeAngle = steps/self.azimuth_steps_per_degree
 		self.position.change_azimuth(changeAngle)
 
@@ -55,7 +55,7 @@ class Telescope:
 		self.elevation_motor.move(changeSteps, callback=self.set_el_Position_steps)
 		#self.elevation_motor.sleep()
 
-	def set_el_postion_steps(self,steps):
+	def set_el_position_steps(self,steps):
 		changeAngle = steps/self.elevation_steps_per_degree
 		self.position.change_elevation(changeAngle)
 
