@@ -29,7 +29,7 @@ class Position:
 		
 
 class Telescope:
-	def __init__(self,azimuthDegree,elevationDegree):
+	def __init__(self,azimuthDegree=50,elevationDegree=40):
 		self.position = Position(0,0)
 		self.focus = 0
 		self.azimuth_motor = motorA
@@ -42,15 +42,23 @@ class Telescope:
 		
 	def set_azimuth(self,newAzimuth):
 		changeSteps = int((self.position.azimuth-newAzimuth)*self.azimuth_steps_per_degree)
-		self.azimuth_motor.move(changeSteps)
+		self.azimuth_motor.move(changeSteps, callback=self.set_az_position_steps)
 		#self.azimuth_motor.sleep()
 
+	def set_az_postion_steps(self,steps):
+		changeAngle = steps/self.azimuth_steps_per_degree
+		self.position.change_azimuth(changeAngle)
 
 	def set_elevation(self,newElevation):
 		
 		changeSteps = int((self.position.elevation-newElevation)*self.elevation_steps_per_degree)
-		self.elevation_motor.move(changeSteps)
+		self.elevation_motor.move(changeSteps, callback=self.set_el_Position_steps)
 		#self.elevation_motor.sleep()
+
+	def set_el_postion_steps(self,steps):
+		changeAngle = steps/self.elevation_steps_per_degree
+		self.position.change_elevation(changeAngle)
+
 
 	def set_focus(self, newFocus):
 		# Focus value is expected to be a floating point number between 0 and 1.

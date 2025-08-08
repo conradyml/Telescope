@@ -68,20 +68,35 @@ class A4988:
 			time.sleep(delay)
 			count+=1
 			if (count % callback_interval) ==0:
-				callback(callback_interval)
+				if direction == REVERSE:
+					callback(-callback_interval)
+				else:
+					callback(callback_interval)
 	#	print("move_threaded: end while")
-		callback(count % callback_interval)
+		if direction == REVERSE:
+			callback(-count % callback_interval)
+		else:
+			callback(count % callback_interval)
 		print("Exit move_threaded")
 
+	def stop(self):
+		if self.thread is not None and self.thread.is_alive():
+			print("Thread is running")
+			self.interrupt.set()
+			print("Thread Interrupted.")
+			self.thread.join()
+			self.interrupt.clear()
 
 	def reset(self,hold=1):
+		GPIO.output(self.SLP_PIN, GPIO.HIGH)
 		GPIO.output(self.RST_PIN, GPIO.LOW)
 		time.sleep(hold)
 		GPIO.output(self.RST_PIN, GPIO.HIGH)
 
-	def sleep(self,hold=1):
+	def sleep(self):
 		GPIO.output(self.SLP_PIN, GPIO.LOW)
-		time.sleep(hold)
+		
+	def wake(self):	
 		GPIO.output(self.SLP_PIN, GPIO.HIGH)
 
 
