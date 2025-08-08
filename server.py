@@ -35,7 +35,7 @@ def elevation_get():
 	return jsonify(telescope.position.to_string())
 
 @app.get('/focus/')
-def elevation_get():
+def focus_get():
 	return jsonify(telescope.focus)
 
 
