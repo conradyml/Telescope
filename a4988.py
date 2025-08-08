@@ -56,13 +56,12 @@ class A4988:
 		print("Enter move_threaded")
 		count=0
 		
-		print("move_threaded: before while")
+	#	print("move_threaded: before while")
 		while not self.interrupt.is_set() and count < abs(steps):
-			print("Enter While 1")
+	#		print("Enter While 1")
 			GPIO.output(self.DIR_PIN, direction)
 			delay = 1 / speed
 			for _ in range(steps):
-				print("Enter For 1")
 				GPIO.output(self.STEP_PIN, GPIO.HIGH)
 				time.sleep(delay)
 				GPIO.output(self.STEP_PIN, GPIO.LOW)
@@ -70,7 +69,7 @@ class A4988:
 				count+=1
 				if (count % callback_interval) ==0:
 					callback(callback_interval)
-		print("move_threaded: end while")
+	#	print("move_threaded: end while")
 		callback(count % callback_interval)
 		print("Exit move_threaded")
 
