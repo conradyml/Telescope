@@ -1,12 +1,6 @@
-import time
-import board
-import busio
-import pwmio
 
-# using adafruit motor hat
 from telescope import Telescope
 
-#telescope = Telescope(50,kit.stepper1,50,None)
 telescope = Telescope(50,50)
 
 # using flask_restful 

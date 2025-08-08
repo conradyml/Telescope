@@ -52,7 +52,7 @@ class Telescope:
 	def set_elevation(self,newElevation):
 		
 		changeSteps = int((newElevation-self.position.elevation)*self.elevation_steps_per_degree)
-		self.elevation_motor.move(changeSteps, callback=self.set_el_Position_steps)
+		self.elevation_motor.move(changeSteps, callback=self.set_el_position_steps)
 		#self.elevation_motor.sleep()
 
 	def set_el_position_steps(self,steps):
