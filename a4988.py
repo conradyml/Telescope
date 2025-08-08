@@ -39,6 +39,13 @@ class A4988:
 			else:
 				direction = REVERSE
 		print("Calling move threaded")
+		if self.thread is not None and self.thread.is_alive():
+			print("Thread is running")
+			self.interrupt.set()
+			print("Thread Interrupted.")
+			self.thread.join()
+			self.interrupt.clear()
+			print ("Interrupt Cleared.")
 		self.thread = threading.Thread(target=self.move_threaded, args=(steps,direction,speed,callback, callback_interval))
 		self.thread.start()
 		print("Exit move")
@@ -48,13 +55,7 @@ class A4988:
 	def move_threaded(self, steps, direction, speed, callback, callback_interval):
 		print("Enter move_threaded")
 		count=0
-		if self.thread is not None and self.thread.is_alive():
-			print("Thread is running")
-			self.interrupt.set()
-			print("Thread Interrupted.")
-			self.thread.join()
-			self.interrupt.clear()
-			print ("Interrupt Cleared.")
+		
 		print("move_threaded: before while")
 		while not self.interrupt.is_set() and count < abs(steps):
 			print("Enter While 1")
