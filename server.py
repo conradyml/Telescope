@@ -58,7 +58,7 @@ def elevation(angle):
 	return jsonify(telescope.position.to_string())
 
 @app.route('/focus/<value>',methods=['PUT','POST'])
-def elevation(value):
+def focus(value):
 	angle = float(value)
 	if request.method == 'PUT':
 		value = telescope.focus+value
