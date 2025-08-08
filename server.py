@@ -26,17 +26,23 @@ def  hello_world():
 	"""
 	return PAGE.encode('utf-8')
 	
-@app.get('/azimuth/')
-def azimuth_get():
-	return jsonify(telescope.position.to_string())
-
-@app.get('/elevation/')
-def elevation_get():
+@app.get('/position/')
+def position_get():
 	return jsonify(telescope.position.to_string())
 
 @app.get('/focus/')
 def focus_get():
 	return jsonify(telescope.focus)
+
+@app.route('/sleep/',methods=['GET','PUT','POST'])
+def sleep():
+	telescope.sleep()        
+	return jsonify(telescope.position.to_string())
+
+@app.route('/wake/',methods=['GET','PUT','POST'])
+def wake():
+	telescope.wake()        
+	return jsonify(telescope.position.to_string())
 
 
 @app.route('/azimuth/<angle>',methods=['PUT','POST'])
@@ -90,8 +96,15 @@ class InvalidAPIUsage(Exception):
 def invalid_api_usage(e):
 	return jsonify(e.to_dict()), e.status_code
 
+import atexit
+#defining function to run on shutdown
+def shutdown_server():
+	telescope.azimuth_motor.interrupt.set()
+	telescope.elevation_motor.interrupt.set()
+	Telescope.shutdown()
+
 
 # driver function 
 if __name__ == '__main__': 
-
-	app.run(debug = True, host="0.0.0.0", port=5000) 
+	atexit.register(shutdown_server)
+	app.run(debug = False, host="0.0.0.0", port=5000) 
