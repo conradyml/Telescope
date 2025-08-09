@@ -28,21 +28,21 @@ def  hello_world():
 	
 @app.get('/position/')
 def position_get():
-	return jsonify(telescope.position.to_string())
+	return jsonify(telescope.get_state())
 
 @app.get('/focus/')
 def focus_get():
-	return jsonify(telescope)
+	return jsonify(telescope.get_state())
 
 @app.route('/sleep/',methods=['GET','PUT','POST'])
 def sleep():
 	telescope.sleep()        
-	return jsonify(telescope.position, telescope.next_position,telescope.focus,telescope.state)
+	return jsonify(telescope.get_state())
 
 @app.route('/wake/',methods=['GET','PUT','POST'])
 def wake():
 	telescope.wake()        
-	return jsonify(telescope.position.to_string())
+	return jsonify(telescope.get_state())
 
 
 @app.route('/azimuth/<angle>',methods=['PUT','POST'])
