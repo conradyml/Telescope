@@ -1,6 +1,6 @@
 
 from a4988 import A4988
-from RPi.GPIO import GPIO
+import RPi.GPIO
 
 motorA = A4988(24,23,22,25)
 motorE = A4988(9,10,11,12)
@@ -90,7 +90,7 @@ class Telescope:
 	
 	@staticmethod
 	def shutdown():
-		GPIO.cleanup()
+		RPi.GPIO.cleanup()
 
 	
 # driver function 

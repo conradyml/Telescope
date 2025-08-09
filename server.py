@@ -91,7 +91,6 @@ class InvalidAPIUsage(Exception):
 		return rv
 
 
-
 @app.errorhandler(InvalidAPIUsage)
 def invalid_api_usage(e):
 	return jsonify(e.to_dict()), e.status_code
