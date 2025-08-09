@@ -87,6 +87,8 @@ class Telescope:
 		self.focus_motor.reset()
 		self.state="AWAKE"
 	
+	def get_state(self):
+		return (f'{ "Position":{self.position.to_string()}, "Moving_To":{self.next_position.to_string()}, "focus":{self.focus}, "state":{self.state}}')
 	
 	@staticmethod
 	def shutdown():
