@@ -16,6 +16,16 @@ class Position:
 		self.azimuth = azimuth
 		self.elevation = elevation
 
+	def __eq__(self, other):
+        # Check if 'other' is an instance of the same class
+		if not isinstance(other, Position):
+			return NotImplemented  # Or raise TypeError if you prefer strict type checking
+
+        # Define your equality logic here
+        # For example, compare attributes
+		return self.azimuth == other.azimuth and self.elevation == other.elevation
+
+
 	def change_azimuth(self,changeAngle):
 		self.azimuth = self.azimuth+changeAngle
 		
@@ -87,8 +97,18 @@ class Telescope:
 		self.focus_motor.reset()
 		self.state="AWAKE"
 	
-	def get_state(self):
-		return (f'{ "Position":{self.position.to_string()}, "Moving_To":{self.next_position.to_string()}, "focus":{self.focus}, "state":"{self.state}"}')
+	def get_status(self):
+		return (f'{{ "Position":{self.position.to_string()}, "Moving_To":{self.next_position.to_string()}, "focus":"{self.focus}"", "state":"{self.state}"}}')
+	
+	def check_position(self):
+		if self.position == self.next_position:
+			return self.get_status()
+		elif self.azimuth_motor.is_moving() or self.elevation_motor.is_moving():
+			return self.get_status()
+		else:
+			self.next_position = self.position
+		return self.get_status()
+
 	
 	@staticmethod
 	def shutdown():
