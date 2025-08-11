@@ -28,21 +28,21 @@ def  hello_world():
 	
 @app.get('/position/')
 def position_get():
-	return jsonify(telescope.get_state())
+	return jsonify(telescope.get_status())
 
 @app.get('/focus/')
 def focus_get():
-	return jsonify(telescope.get_state())
+	return jsonify(telescope.get_status())
 
 @app.route('/sleep/',methods=['GET','PUT','POST'])
 def sleep():
 	telescope.sleep()        
-	return jsonify(telescope.get_state())
+	return jsonify(telescope.get_status())
 
 @app.route('/wake/',methods=['GET','PUT','POST'])
 def wake():
 	telescope.wake()        
-	return jsonify(telescope.get_state())
+	return jsonify(telescope.get_status())
 
 
 @app.route('/azimuth/<angle>',methods=['PUT','POST'])
@@ -52,7 +52,7 @@ def azimuth(angle):
 		angle = telescope.position.azimuth+angle
 
 	telescope.set_azimuth(angle)        
-	return jsonify(telescope.position.to_string())
+	return jsonify(telescope.get_status())
 
 @app.route('/elevation/<angle>',methods=['PUT','POST'])
 def elevation(angle):
@@ -61,7 +61,7 @@ def elevation(angle):
 		angle = telescope.position.elevation+angle
 
 	telescope.set_elevation(angle)        
-	return jsonify(telescope.position.to_string())
+	return jsonify(telescope.get_status())
 
 @app.route('/focus/<value>',methods=['PUT','POST'])
 def focus(value):
@@ -70,7 +70,7 @@ def focus(value):
 		value = telescope.focus+value
 
 	telescope.set_focus(value)        
-	return jsonify(telescope.focus)
+	return jsonify(telescope.get_status())
 
 
 

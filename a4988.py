@@ -93,6 +93,10 @@ class A4988:
 		time.sleep(hold)
 		GPIO.output(self.RST_PIN, GPIO.HIGH)
 
+	def is_moving(self):
+		return (self.thread is not None) and self.thread.is_alive()
+		
+
 	def sleep(self):
 		GPIO.output(self.SLP_PIN, GPIO.LOW)
 		
